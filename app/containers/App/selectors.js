@@ -27,6 +27,12 @@ const makeSelectLocation = () =>
     routerState.get('location').toJS(),
   );
 
+const makeSelectOrder = () =>
+  createSelector(selectGlobal, globalState => globalState.get('order').toJS());
+
+const makeSelectCartItems = () =>
+  createSelector(selectGlobal, globalState => globalState.get('cartItems'));
+
 export {
   selectGlobal,
   makeSelectCurrentUser,
@@ -34,4 +40,6 @@ export {
   makeSelectError,
   makeSelectRepos,
   makeSelectLocation,
+  makeSelectOrder,
+  makeSelectCartItems,
 };

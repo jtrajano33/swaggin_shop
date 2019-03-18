@@ -13,6 +13,7 @@
 import { fromJS } from 'immutable';
 
 import { LOAD_REPOS_SUCCESS, LOAD_REPOS, LOAD_REPOS_ERROR } from './constants';
+import { ADD_TO_CART } from '../SwaggerHome/constants';
 
 // The initial state of the App
 const initialState = fromJS({
@@ -22,9 +23,32 @@ const initialState = fromJS({
   userData: {
     repositories: false,
   },
+  order: {
+    orderId: 'INC',
+    clientType: 'woocommerce',
+    totals: {
+      subtotal: 0,
+      subtotal_tax: 0,
+      shipping_total: 0,
+      shipping_tax: 0,
+      discount_total: 0,
+      discount_tax: 0,
+      cart_contents_total: 0,
+      cart_contents_tax: 0,
+      fee_total: 0,
+      fee_tax: 0,
+      total: 0,
+      total_tax: 0,
+    },
+    currency: 'USD',
+  },
+  cartItems: [],
 });
 
 function appReducer(state = initialState, action) {
+  const total = [];
+  let totalFinal;
+
   switch (action.type) {
     case LOAD_REPOS:
       return state
@@ -38,6 +62,21 @@ function appReducer(state = initialState, action) {
         .set('currentUser', action.username);
     case LOAD_REPOS_ERROR:
       return state.set('error', action.error).set('loading', false);
+    case ADD_TO_CART: {
+      let cartItems = state.get('cartItems');
+
+      cartItems = [...cartItems, action.payload];
+      cartItems.map(priceEach => total.push(priceEach.price));
+
+      if (total.length >= 0) {
+        totalFinal = total.reduce((a, b) => a + b);
+      }
+
+      return state
+        .set('cartItems', cartItems)
+        .setIn(['order', 'totals', 'total'], totalFinal)
+        .setIn(['order', 'totals', 'subtotal'], totalFinal);
+    }
     default:
       return state;
   }
